@@ -1,0 +1,193 @@
+{% extends 'base.html.twig' %}
+
+{% block admin -%}
+    <div class="row">
+        <div class="col-sm-6">
+            <h1>Processing Queue <a id="reload_indicator"><i class="fa fa-refresh collapse" aria-hidden="true"><span>New data available</span></i></a></h1>
+        </div>
+        <script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", function(event)
+            {
+                var lastCheckTimestamp = {{ lastcheck }};
+                setInterval(function checkForUpdates(){
+                    jQuery.getJSON('{{ path('imported_file_getlatestchange') }}',{},function(data){
+                        if (data.latestchange > lastCheckTimestamp){
+                            jQuery("#reload_indicator").show();
+                        }
+                    });
+                }, 30000);
+                jQuery('#reload_indicator').click(function(){
+                    location.reload();
+                });
+            });
+        </script>
+        <div class="col-sm-3">
+        </div>
+        <div class="col-sm-3 paging">
+            {% if importedFiles.hasPreviousPage %}
+                <a href="{{ importedFiles.getPreviousPage }}">Previous</a>
+            {% endif %}
+            <span>Page {{ importedFiles.getCurrentPage }}</span>
+            {% if importedFiles.hasNextPage %}
+                <a href="{{ importedFiles.getNextPage }}">Next</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-9">
+            <div class="row">
+                <div class="col-sm-6">
+                    Uploading into: {% if uploadDataSet %}{{ uploadDataSet.periodStart | date('M Y') }}{% endif %}<br />
+                    Upload Files: <form id="uploadform">
+                        <input type="file" name="upload" id="upload" multiple="multiple" />
+                        <input type="hidden" name="_csrfToken" value="{{ csrf_token("upload") }}" />
+
+
+                    </form>
+                    <span id="progress"></span>
+                    <script type="text/javascript">
+                        document.addEventListener("DOMContentLoaded", function(event)
+                        {
+                            var progressInterval;
+                            var randomId;
+                            jQuery('#upload').change(function uploadFiles(){
+                                var formData = new FormData(jQuery('#uploadform')[0]);
+                                for(var i=0; i<this.files.length; i++) {
+                                    formData.append('upload[]', this.files[i]);
+                                }
+                                randomId = Math.random().toString(36).substr(2, 10);
+                                jQuery.ajax({
+                                    url: '{{ path('importerror_upload') }}',
+                                    type: 'POST',
+                                    success: function(data, textStatus, jqXHR)
+                                    {
+                                        jQuery('#count_files_waiting').html(data.files_waiting);
+                                        jQuery('#upload_results').html(data.files_uploaded.join('<br />') + '<br /><a class="dismiss">Dismiss/Reload</a>');
+                                        jQuery('#upload_results .dismiss').click(function(){
+                                            jQuery('#upload_results').html('');
+                                            location.reload();
+                                        });
+                                    },
+                                    headers: {
+                                        "X-Progress-ID": randomId
+                                    },
+                                    // Form data
+                                    data: formData,
+                                    //Options to tell JQuery not to process data or worry about content-type
+                                    processData: false,
+                                    contentType: false
+                                });
+                                jQuery(this).val('');
+                            });
+
+
+                        });
+                    </script>
+                </div>
+                <div class="col-sm-6">
+                    Upload Results:<br /><span id="upload_results"></span><br /><br />
+
+                </div>
+            </div>
+
+        </div>
+        <div class="col-sm-3">
+            <div class="row">
+                <div class="col-sm-12">
+                    {% if show_archived %}
+                        <a href="#" class="archive_action_selected"><i class="fa fa-archive" aria-hidden="true"></i> Archive Selected</a><br />
+                        <a href="{{ path('imported_file_archiveall')  }}" class="archive_action_all"><i class="fa fa-archive" aria-hidden="true"></i> Archive All - {{ importedFiles.getnbresults }} records</a>
+                        <input type="hidden" class="archiveactiontype" name="archiveactiontype" value="archive" />
+                    {% else %}
+                        <a href="#" class="archive_action_selected"><i class="fa fa-archive" aria-hidden="true"></i> UnArchive Selected</a><br />
+                        <a href="{{ path('imported_file_unarchiveall')  }}" class="archive_action_all"><i class="fa fa-archive" aria-hidden="true"></i> UnArchive All - {{ importedFiles.getnbresults }} records</a>
+                        <input type="hidden" class="archiveactiontype" name="archiveactiontype" value="unarchive" />
+                    {% endif %}
+                    <script type="text/javascript">
+                        document.addEventListener("DOMContentLoaded", function(event)
+                        {
+                            jQuery('.archive_action_selected').click(function archiveSelected(){
+                                var data = jQuery('.itemlist .checkbox input').serializeArray();
+                                data.push({ name: "action", value: jQuery('.archiveactiontype').val() });
+                                data.push({ name: "_csrfToken", value: '{{  csrf_token("archive") }}'});
+                                jQuery.post(
+                                        '{{ path('imported_file_archiveselected') }}',
+                                        data,
+                                        function archiveSelectedSuccessReload(status)
+                                        {
+                                            window.location.href='{{ path('imported_file_pages',{'page': importedFiles.getCurrentPage}) }}';
+                                        }
+                                );
+                            });
+                        });
+                    </script>
+                </div>
+                <div class="col-sm-12">
+                    <form class="filter" method="post" action="{{ path('imported_file_pages',{'page': importedFiles.getCurrentPage}) }}">
+                        {{ form_rest(filter_form) }}
+                        <input class="button" type="submit" name="submit-filter" value="Search">
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+
+    </div>
+
+    {% if importedFiles.getnbresults %}
+        <table  class="table table-striped">
+            <thead>
+            <tr>
+                <th class="checkbox"></th>
+                <th>Path/ FileName</th>
+                <th>Uploaded</th>
+                <th>Processed</th>
+                <th>Time Taken (s)</th>
+                <th>Row Count</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for importedFile in importedFiles %}
+                <tr>
+                    <td class="checkbox"><input type="checkbox" name="item[{{ importedFile[0].id }}]" value="1" /></td>
+                    <td><a href="{{ path('imported_file_file_download', { 'id': importedFile[0].id } ) }}">{{ importedFile[0].getAbsolutePath }}</a></td>
+                    <td>{{ importedFile[0].created | date('M d Y H:i:s') }}</td>
+                    <td>{% if importedFile[0].processed %}{{ importedFile[0].processed|date('M d Y H:i:s') }}{% endif %}</td>
+                    <td class="aright">{% if importedFile[0].processed %} {{ importedFile[0].getTimeTaken|number_format(1,'.',',') }}{% endif %}</td>
+                    <td class="aright">{% if importedFile[0].processed %} {{ importedFile[0].getRowCount|number_format(0,'.',',') }}{% endif %}</td>
+                    <td class="aright">
+
+                        {% if importedFile[0].processed %}
+                            {% if importedFile.countErrors > 0 %}
+                                <span class="error">{{  importedFile.countErrors }} errors.</span>
+                            {% else %}
+                                <span class="success"><i class="fa fa-check" aria-hidden="true"></i></span>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-sm-9">
+        </div>
+        <div class="col-sm-3 paging">
+            {% if importedFiles.hasPreviousPage %}
+                <a href="{{ importedFiles.getPreviousPage }}">Previous</a>
+            {% endif %}
+            <span>Page {{ importedFiles.getCurrentPage }}</span>
+            {% if importedFiles.hasNextPage %}
+                <a href="{{ importedFiles.getNextPage }}">Next</a>
+            {% endif %}
+        </div>
+
+    </div>
+{% endblock %}

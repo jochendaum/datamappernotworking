@@ -1,0 +1,42 @@
+{{ form(form) }}
+
+<script>
+    jQuery(document).ready(function() {
+        // you may need to change this code if you are not using Bootstrap Datepicker
+        jQuery('#dataset_period_start_daily').datepicker({
+            format: 'yyyy-mm-dd'
+        });
+        jQuery('#dataset_period_start_weekly').datepicker({
+            format: 'yyyy-mm-dd',
+            beforeShowDay: function(date)
+            {
+                if (date.getDay() == 1){
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+        });
+
+        jQuery('#dataset_Type').change(function()
+        {
+            switch (parseInt(this.value)){
+                case 3:
+                    jQuery('#dataset_period_start_weekly, #dataset_period_start_daily').closest('.form-group').hide();
+                    jQuery('#dataset_period_start_monthly').closest('.form-group').show();
+                    break;
+                case 2:
+                    jQuery('#dataset_period_start_monthly, #dataset_period_start_daily').closest('.form-group').hide();
+                    jQuery('#dataset_period_start_weekly').closest('.form-group').show();
+                    break;
+                case 1:
+                    jQuery('#dataset_period_start_monthly, #dataset_period_start_weekly').closest('.form-group').hide();
+                    jQuery('#dataset_period_start_daily').closest('.form-group').show();
+                    break;
+            }
+        });
+
+        jQuery('#dataset_Type').change();
+
+    });
+</script>

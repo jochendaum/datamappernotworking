@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block admin -%}
+<div class="row">
+    <div class="col-sm-12">
+        <table  class="table table-striped">
+            <thead>
+                <tr>
+                    <th>File</th>
+                    <th>Url</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Futures and Exchange Rates</td>
+                    <td><a target="_new" href="{{ path('data_futuresandexchangerates') }}">{{app.request.getSchemeAndHttpHost()}}{{ path('data_futuresandexchangerates') }}</a></td>
+                </tr>
+                <tr>
+                    <td>Historical monthly volume by region</td>
+                    <td><table class="table table-striped">
+                            {% for exporter in exporters %}
+                            <tr>
+                                <td>{{ exporter.shortCode }}</td>
+                                <td><a target="_new" href="{{ path('data_volumesbyregion', { shortcode: exporter.shortCode }) }}"
+                                    >{{app.request.getSchemeAndHttpHost()}}{{ path('data_volumesbyregion', { shortcode: exporter.shortCode }) }}</a></td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+
+                </tr>
+                <tr>
+                    <td>Historical monthly Dairy Australia prices</td>
+                    <td><a target="_new" href="{{ path('data_historical_monthly_dairy_australia_prices') }}">{{app.request.getSchemeAndHttpHost()}}{{ path('data_historical_monthly_dairy_australia_prices') }}</a></td>
+                </tr>
+                <tr>
+                    <td>Historical monthly Prices used for regressions</td>
+                    <td><a target="_new" href="{{ path('data_historical_monthly_prices_used_for_regressions') }}">{{app.request.getSchemeAndHttpHost()}}{{ path('data_historical_monthly_prices_used_for_regressions') }}</a></td>
+                </tr>
+                <tr>
+                    <td>Historical monthly USD Exchange rates</td>
+                    <td><a target="_new" href="{{ path('data_historical_monthly_usd_exchange_rates') }}">{{app.request.getSchemeAndHttpHost()}}{{ path('data_historical_monthly_usd_exchange_rates') }}</a></td>
+                </tr>
+
+
+                <tr>
+                    <td>Historical weekly AgriHQ prices</td>
+                    <td><a target="_new" href="{{ path('data_historical_weekly_agrihq_prices') }}">{{app.request.getSchemeAndHttpHost()}}{{ path('data_historical_weekly_agrihq_prices') }}</a></td>
+                </tr>
+                <tr>
+                    <td>Historical weekly butter price comparisons</td>
+                    <td><a target="_new" href="{{ path('data_historical_weekly_butter_price_comparisons') }}">{{app.request.getSchemeAndHttpHost()}}{{ path('data_historical_weekly_butter_price_comparisons') }}</a></td>
+                </tr>
+                <tr>
+                    <td>Historical weekly cheese price
+                    <td><a target="_new" href="{{ path('data_historical_weekly_cheese_price_comparisons') }}">{{app.request.getSchemeAndHttpHost()}}{{ path('data_historical_weekly_cheese_price_comparisons') }}</a></td>
+                </tr>
+                <tr>
+                    <td>Historical weekly CME and NDPSR prices</td>
+                    <td><a target="_new" href="{{ path('data_historical_weekly_cme_ndpsr_prices') }}">{{app.request.getSchemeAndHttpHost()}}{{ path('data_historical_weekly_cme_ndpsr_prices') }}</a></td>
+                </tr>
+                <tr>
+                    <td>Historical weekly EC prices</td>
+                    <td><a target="_new" href="{{ path('data_historical_weekly_ec_prices') }}">{{app.request.getSchemeAndHttpHost()}}{{ path('data_historical_weekly_ec_prices') }}</a></td>
+                </tr>
+                <tr>
+                    <td>Historical weekly SMP price comparisons</td>
+                    <td><a target="_new" href="{{ path('data_historical_weekly_smp_price_comparisons') }}">{{app.request.getSchemeAndHttpHost()}}{{ path('data_historical_weekly_smp_price_comparisons') }}</a></td>
+                </tr>
+                <tr>
+                    <td>Historical weekly WMP price comparisons</td>
+                    <td><a target="_new" href="{{ path('data_historical_weekly_wmp_price_comparisons') }}">{{app.request.getSchemeAndHttpHost()}}{{ path('data_historical_weekly_wmp_price_comparisons') }}</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

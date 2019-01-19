@@ -1,0 +1,14 @@
+        {% for periodYmd, period in months %}
+            <tr>
+                <td>{{ period | date('d-M-y') }}</td>
+                {% for posProduct, productName in productsInOrder %}
+                    {% for posRegion, regionName in regionsInOrder %}
+                        <td>
+                            {% if data[periodYmd][productsLower[posProduct]][regionsLower[posRegion]] is defined %}
+                                {{ data[periodYmd][productsLower[posProduct]][regionsLower[posRegion]] }}
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                {% endfor %}
+            </tr>
+        {% endfor %}

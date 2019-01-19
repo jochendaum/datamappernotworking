@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="icon" type="image/gif" href="/animated_favicon1.gif">
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+
+</head>
+<body class="{% block bodyclasses %}{% endblock %}">
+
+
+{% block body -%}
+    <div class="container">
+        <div class="row" id="header">
+            <div class="col-xl-4 col-sm-2 logo_holder">
+                <img src="{{ asset('build/assets/images/freshagenda.jpg') }}" />
+
+            </div>
+            <div class="col-xl-7 col-sm-9">
+                <h1>Data Suite Simulator Cloud</h1>
+                <div class="navigation">
+                    <a href="{{ path('imported_file_index') }}">Files</a>
+                    <a href="{{ path('importerror_index') }}">Import Errors</a>
+                    <a href="{{ path('dataset_index') }}">Data sets</a>
+                    <a href="{{ path('data_urls_show') }}">Data Urls</a>
+                    {% if app.user %}
+
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-xl-1 col-sm-1 logout">
+                {% if app.user %}
+                    <a href="{{ path('fos_user_security_logout') }}">Logout</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row" id="content">
+            <div class="col-xl-12 col-sm-12">
+                {% block admin %}{% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+</body>
+</html>
+

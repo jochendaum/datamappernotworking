@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block admin -%}
+    <div class="row">
+        <div class="col-sm-6">
+            <h1>Data sets</h1>
+        </div>
+        <div class="col-sm-3">
+        </div>
+        <div class="col-sm-3 paging">
+            {% if datasets.hasPreviousPage %}
+                <a href="{{ datasets.getPreviousPage }}">Previous</a>
+            {% endif %}
+            <span>Page {{ datasets.getCurrentPage }}</span>
+            {% if datasets.hasNextPage %}
+                <a href="{{ datasets.getNextPage }}">Next</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            <a class="btn btn-primary" href="{{ path('dataset_create') }}"><i class="fa fa-plus"></i>Add New</a>
+        </div>
+        <div class="col-sm-3">
+
+        </div>
+        <div class="col-sm-3 filter">
+            <!--<form class="filter" method="post" action="{{ path('imported_file_pages',{'page': datasets.getCurrentPage}) }}">
+                {{ form_rest(filter_form) }}
+                <input class="button" type="submit" name="submit-filter" value="Search">
+            </form>-->
+        </div>
+    </div>
+
+    {% if datasets.getnbresults %}
+        <table class="itemlist table table-striped">
+            <thead>
+            <tr>
+                <th class="checkbox"></th>
+                <th>Type</th>
+                <th>Period</th>
+                <th>Active</th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for dataset in datasets %}
+                <tr>
+                    <td class="checkbox"><input type="checkbox" name="item[{{ dataset.id }}]" value="1" /></td>
+                    <td>{{ dataset.Type.name }}</td>
+                    <td><a href="{{ path('dataset_edit', { 'id': dataset.id } ) }}">
+                            {{ dataset.showDate }}
+                        </a></td>
+                    <td>
+                        {% if dataset.active %}
+                            Active
+                        {% else %}
+                            Draft
+                        {% endif %}
+                    </td>
+                    <td class="aright">
+                        {% if dataset.upload %}
+                            Uploads go here
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% set c=0 %}
+                        {% set a=0 %}
+                        {% for item in dataStoreProvider.getDataSetStatus(dataset) %}
+                            {% set a=a+1 %}
+                            {% if item.noRecords > 0 %}
+                                {% set c=c+1 %}
+                            {% endif %}
+                        {% endfor  %}
+                        <a href="{{ path('dataset_show', { 'id': dataset.id }) }}">{{ c }} of {{ a }} files supplied</a>
+                    </td>
+                </tr>
+
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-sm-9">
+        </div>
+        <div class="col-sm-3 paging">
+            {% if datasets.hasPreviousPage %}
+                <a href="{{ datasets.getPreviousPage }}">Previous</a>
+            {% endif %}
+            <span>Page {{ datasets.getCurrentPage }}</span>
+            {% if datasets.hasNextPage %}
+                <a href="{{ datasets.getNextPage }}">Next</a>
+            {% endif %}
+        </div>
+
+    </div>
+{% endblock %}

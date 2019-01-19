@@ -1,0 +1,40 @@
+body {
+    background-color: lightgray;
+}
+
+@import "~bootstrap/scss/bootstrap";
+@import '~@fortawesome/fontawesome-free/css/all.css';
+@import 'bootstrap-datepicker.standalone.min.css';
+
+#header{
+    padding-bottom: 30px;
+    border-bottom: 30px solid #46abdf;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.navigation{
+    position: absolute;
+    bottom: -30px;
+    left: 15px;
+}
+
+.navigation a{
+    color: #ffffff;
+    background-color: #46abdf;
+    padding: 10px;
+    margin-right: 10px;
+    -webkit-border-top-left-radius: 10px;
+    -webkit-border-top-right-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-topright: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+
+}
+
+
+
+.itemlist td{
+    padding: 10px;
+}

@@ -1,0 +1,175 @@
+{% extends 'base.html.twig' %}
+
+{% block admin -%}
+    <div class="row">
+        <div class="col-sm-6">
+            <h1>Import Errors</h1>
+        </div>
+        <div class="col-sm-3">
+        <a href="{{ path('importerror_exportlast') }}"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Export for latest file - {{ countlatesterrors }} record(s)</a><br />
+            <a href="{{ path('importerror_exportall') }}"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Export All</a>
+        </div>
+        <div class="col-sm-3 paging">
+            {% if importErrors.hasPreviousPage %}
+                <a href="{{ importErrors.getPreviousPage }}">Previous</a>
+            {% endif %}
+            <span>Page {{ importErrors.getCurrentPage }}</span>
+            {% if importErrors.hasNextPage %}
+                <a href="{{ importErrors.getNextPage }}">Next</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            {% if show_archived %}
+                <a href="#" class="archive_action_selected"><i class="fa fa-archive" aria-hidden="true"></i> Archive Selected</a><br />
+                <a href="{{ path('importerror_archiveall')  }}" class="archive_action_all"><i class="fa fa-archive" aria-hidden="true"></i> Archive All - {{ countall }} records</a>
+                <input type="hidden" class="archiveactiontype" name="archiveactiontype" value="archive" />
+            {% else %}
+                <a href="#" class="archive_action_selected"><i class="fa fa-archive" aria-hidden="true"></i> UnArchive Selected</a><br />
+                <a href="{{ path('importerror_unarchiveall')  }}" class="archive_action_all"><i class="fa fa-archive" aria-hidden="true"></i> UnArchive All - {{ countall }} records</a>
+                <input type="hidden" class="archiveactiontype" name="archiveactiontype" value="unarchive" />
+            {% endif %}
+            <script type="text/javascript">
+                jQuery(document).ready(function()
+                {
+                    jQuery('.archive_action_selected').click(function archiveSelected(){
+                        var data = jQuery('.itemlist .checkbox input').serializeArray();
+                        data.push({ name: "action", value: jQuery('.archiveactiontype').val() });
+                        data.push({ name: "_csrfToken", value: '{{  csrf_token("archive") }}'});
+                        jQuery.post(
+                                '{{ path('importerror_archiveselected') }}',
+                                data,
+                                function archiveSelectedSuccessReload(status)
+                                {
+                                    window.location.href='{{ path('importerror_pages',{'page': importErrors.getCurrentPage}) }}';
+                                }
+                        );
+                    });
+                });
+            </script>
+        </div>
+        <div class="col-sm-3">
+            Upload Files: <form id="uploadform">
+                <input type="hidden" name="UPLOAD_IDENTIFIER" value="{{ upload_progress_name }}" />
+                <input type="file" name="upload" id="upload" multiple="multiple" />
+                <input type="hidden" name="_csrfToken" value="{{ csrf_token("upload") }}" />
+
+
+            </form>
+            <span id="progress"></span>
+            <script type="text/javascript">
+jQuery(document).ready(function() {
+    var progressInterval;
+    var randomId;
+    jQuery('#upload').change(function uploadFiles(){
+        var formData = new FormData(jQuery('#uploadform')[0]);
+        for(var i=0; i<this.files.length; i++) {
+            formData.append('upload[]', this.files[i]);
+        }
+        progressInterval = setInterval(checkProgress, 2000);
+        randomId = Math.random().toString(36).substr(2, 10);
+        jQuery.ajax({
+            url: '{{ path('importerror_upload') }}',
+            type: 'POST',
+            success: function(data, textStatus, jqXHR)
+            {
+                jQuery('#count_files_waiting').html(data.files_waiting);
+                jQuery('#upload_results').html(data.files_uploaded.join('<br />') + '<br /><a class="dismiss">Dismiss</a>');
+                jQuery('#upload_results .dismiss').click(function(){
+                    jQuery('#upload_results').html('');
+                });
+                removeProgress();
+            },
+            headers: {
+                "X-Progress-ID": randomId
+            },
+            // Form data
+            data: formData,
+            //Options to tell JQuery not to process data or worry about content-type
+            processData: false,
+            contentType: false
+        });
+        jQuery(this).val('');
+    });
+
+    function checkProgress()
+    {
+        jQuery.get('{{ path('importerror_upload_progress') }}?id={{ upload_progress_name }}',
+                    {
+
+                    },
+                    function uploadProgressResult(data) {
+                        if (parseInt(data.bytes_uploaded) && parseInt(data.bytes_total)) {
+                            var progress = data.bytes_uploaded / data.bytes_total * 100;
+                            jQuery('#progress').show().html(progress.toFixed(2) + '% (' + data.est_sec + ' sec remaining)');
+                            if (progress > 99.9999) {
+                                setTimeout(removeProgress, 2000);
+                            }
+                        }
+                    }
+                );
+    }
+
+                    function removeProgress()
+                    {
+                        jQuery('#progress').hide().html('');
+                        clearInterval(progressInterval);
+                    }
+
+                });
+            </script>
+        </div>
+        <div class="col-sm-3">
+            Upload Results:<br /><span id="upload_results"></span><br /><br />
+            Processing Status:<br /><span id="count_files_waiting">{{ count_files_waiting }}</span> files waiting
+
+        </div>
+        <div class="col-sm-3 filter">
+            <form class="filter" method="post" action="{{ path('importerror_pages',{'page': importErrors.getCurrentPage}) }}">
+                {{ form_rest(filter_form) }}
+                <input class="button" type="submit" name="submit-filter" value="Search">
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-striped importerror">
+        <thead>
+        <tr>
+            <th class="checkbox"></th>
+            <th>File</th>
+            <th>Error Message</th>
+            <th>Details</th>
+            <th>Logged</th>
+            <th>Count</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for importError in importErrors %}
+            <tr>
+                <td class="checkbox"><input type="checkbox" name="item[{{ importError.id }}]" value="1" /></td>
+                <td>{{ importError.File.getAbsolutePath }}</td>
+                <td>{{ importError.name }}</td>
+                <td>{{ importError.details }}</td>
+                <td>{% if importError.logged %}{{ importError.logged|date('M d Y H:i:s') }}{% endif %}</td>
+                <td>{{ importError.count }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="row">
+        <div class="col-sm-9">
+        </div>
+        <div class="col-sm-3 paging">
+            {% if importErrors.hasPreviousPage %}
+                <a href="{{ importErrors.getPreviousPage }}">Previous</a>
+            {% endif %}
+            <span>Page {{ importErrors.getCurrentPage }}</span>
+            {% if importErrors.hasNextPage %}
+                <a href="{{ importErrors.getNextPage }}">Next</a>
+            {% endif %}
+        </div>
+    </div>
+
+
+{% endblock %}

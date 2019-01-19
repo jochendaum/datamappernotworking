@@ -1,0 +1,5 @@
+
+app_dataset:
+    resource: "routing/dataset.yml"
+    prefix:   /dataset
+

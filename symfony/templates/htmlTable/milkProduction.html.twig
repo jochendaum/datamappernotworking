@@ -1,0 +1,21 @@
+<h1>Milk Production by month</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Month</th>
+            <th>Volume</th>
+            <th>Exporter</th>
+            <th>Product</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in data %}
+            <tr>
+                <td>{{ row.startDate | date('M Y') }}</td>
+                <td>{{ row.volume }}</td>
+                <td>{{ row.ExporterCountry.name }}</td>
+                <td>{{ row.Product.name }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

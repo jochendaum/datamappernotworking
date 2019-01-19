@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block admin -%}
+    <div class="row">
+        <div class="col-sm-6">
+            <h1>Data set:
+                {{ dataset.showDate }}</h1>
+        </div>
+        <div class="col-sm-3">
+        </div>
+        <div class="col-sm-3 paging">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <button class="delete_dataset_data_selected">Remove selected</button>
+        </div>
+        <div class="col-sm-3">
+        </div>
+        <div class="col-sm-3 ">
+        </div>
+    </div>
+
+    <table class="table table-striped" id="dataset_data">
+        <thead>
+            <th></th>
+            <th>Data Type</th>
+            <th>Records</th>
+
+        </thead>
+        <tbody>
+            {% for item in dataStoreProvider.getDataSetStatus(dataset) %}
+                <tr>
+                    <td class="checkbox"><input type="checkbox" name="item[{{ item.id }}]" value="1" /></td>
+                    <td>
+                        {{ item.label }}
+                    </td>
+                    <td>
+                        {% if item.noRecords > 0 %}
+                            <i class="fa fa-check" style="color: green;"></i> {{ item.noRecords }} records
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function(event)
+    {
+        jQuery('.delete_dataset_data_selected').click(function deleteSelected(){
+            var data = jQuery('#dataset_data .checkbox input').serializeArray();
+            data.push({ name: "action", value: 'deleteSelected' });
+            data.push({ name: "_csrfToken", value: '{{  csrf_token("deleteData") }}'});
+            jQuery.post(
+                '{{ path('dataset_delete_selected',{ id: dataset.id }) }}',
+                data,
+                function archiveSelectedSuccessReload(status)
+                {
+                    window.location.reload();
+                }
+            );
+        });
+    });
+    </script>
+{% endblock %}

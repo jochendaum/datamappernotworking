@@ -1,0 +1,27 @@
+<h1>{{ title }}</h1>
+{% set twigdf=dateFormat %}
+<table>
+    <thead>
+        <tr>
+            <th>Month</th>
+            {% for productName, row  in data.columnData %}
+                <th>{{ productName }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for periodYmd, period in data.datePeriods %}
+            <tr>
+                <td>{{ period | date(twigdf) }}</td>
+                {% for productName, row in data.columnData %}
+                    <td>
+                        {% if data.columnData[productName][periodYmd] > 0 %}
+                            {{ data.columnData[productName][periodYmd] }}
+                        {% endif %}
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

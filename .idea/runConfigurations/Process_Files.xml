@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Process Files" type="PhpLocalRunConfigurationType" factoryName="PHP Console" path="$PROJECT_DIR$/symfony/bin/console" scriptParameters="app:process-files">
+    <method v="2" />
+  </configuration>
+</component>

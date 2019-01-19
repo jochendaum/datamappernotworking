@@ -1,0 +1,14 @@
+<h1>Export volumes: Products and Regions by month</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Date</th>
+            {% for posProduct, productName in productsInOrder %}
+                {% for posRegion, regionName in regionsInOrder %}
+                    <th>{{ productName }} - {{ regionName }}</th>
+                {% endfor %}
+            {% endfor %}
+        </tr>
+    </thead>
+
+    <tbody>

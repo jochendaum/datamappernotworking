@@ -1,0 +1,32 @@
+<h1>futures.columnData and Exchange rates</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Month</th>
+            {% for rateName, rate  in exchangeRates.columnData %}
+                <th>{{ rateName }}</th>
+            {% endfor %}
+            {% for productName, future  in futures.columnData %}
+                <th>{{ productName }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for periodYmd, period in exchangeRates.datePeriods %}
+            <tr>
+                <td>{{ period | date('1 M Y') }}</td>
+                {% for rateName, rate in exchangeRates.columnData %}
+                    <td>{{ exchangeRates.columnData[rateName][periodYmd] | number_format(4)}}</td>
+                {% endfor %}
+                {% for productName, future in futures.columnData %}
+                    <td>
+                        {% if futures.columnData[productName][periodYmd] > 0 %}
+                            {{ futures.columnData[productName][periodYmd] }}
+                        {% endif %}
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

@@ -1,0 +1,40 @@
+{% extends 'AppBundle::admin.html.twig' %}
+
+{% block admin %}
+    <h1>Error Details</h1>
+
+    <table>
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ importError.id }}</td>
+            </tr>
+            <tr>
+                <th>Txn_id</th>
+                <td>{{ importError.txnid }}</td>
+            </tr>
+            <tr>
+                <th>File</th>
+                <td>{{ importError.file }}</td>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <td>{{ importError.name }}</td>
+            </tr>
+            <tr>
+                <th>Details</th>
+                <td>{{ decodedDetails | nl2br}}</td>
+            </tr>
+            <tr>
+                <th>Logged</th>
+                <td>{% if importError.logged %}{{ importError.logged|date('M d Y H:i:s') }}{% endif %}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('importerror_index') }}">Back to the list</a>
+        </li>
+    </ul>
+{% endblock %}
